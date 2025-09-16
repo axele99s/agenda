@@ -43,3 +43,23 @@ def crear_usuario(usuario: Usuario):
 
     finally:
         conn.close()
+
+
+def obtener_usuario(usuario_id: int):
+    """Devuelve un usuario como diccionario, o None si no existe."""
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * 
+        FROM usuarios u
+        JOIN personas p ON u.id = p.id
+        WHERE u.id = ?;
+    """, (usuario_id,))
+
+    row = cur.fetchone()
+    conn.close()
+
+    if row:
+        return dict(row)  # lo convierte en diccionario {columna: valor}
+    return None

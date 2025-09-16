@@ -5,8 +5,8 @@
 CREATE TABLE IF NOT EXISTS personas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre TEXT NOT NULL,
-    email TEXT,
-    num_celular TEXT,
+    email TEXT NOT NULL UNIQUE,
+    num_celular TEXT NOT NULL UNIQUE,
     direccion TEXT,
     ciudad TEXT,
     fecha_nacimiento TEXT,   -- formato 'YYYY-MM-DD'
