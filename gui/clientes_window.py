@@ -1,52 +1,48 @@
-# gui/clientes_window.py
-import sys
-from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QLabel, QPushButton,
-    QVBoxLayout, QWidget, QHBoxLayout, QLineEdit, QListWidget
-)
-
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QListWidget, QLineEdit, QPushButton, QWidget
+from db.connection import get_connection   # <- NUNCA importes ventana_inicial ni main aquí
 
 class ClientesWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Gestión de Clientes")
         self.resize(600, 400)
 
-        # Widgets
-        self.lista_clientes = QListWidget()
-        self.input_nombre = QLineEdit()
-        self.input_nombre.setPlaceholderText("Nombre del cliente")
+        self.lista = QListWidget()
+        self.input_nombre = QLineEdit(placeholderText="Nombre del cliente")
         self.btn_agregar = QPushButton("Agregar Cliente")
-
-        # Eventos
         self.btn_agregar.clicked.connect(self.agregar_cliente)
 
-        # Layout superior
-        form_layout = QHBoxLayout()
-        form_layout.addWidget(self.input_nombre)
-        form_layout.addWidget(self.btn_agregar)
-
-        # Layout principal
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Clientes:"))
-        layout.addWidget(self.lista_clientes)
-        layout.addLayout(form_layout)
+        layout.addWidget(QLabel("Clientes"))
+        layout.addWidget(self.lista)
+        layout.addWidget(self.input_nombre)
+        layout.addWidget(self.btn_agregar)
 
-        # Central widget
         central = QWidget()
         central.setLayout(layout)
         self.setCentralWidget(central)
 
+        self.cargar_clientes()
+
+    def cargar_clientes(self):
+        conn = get_connection()
+        cur = conn.cursor()
+        try:
+            cur.execute("""
+                SELECT c.id, p.nombre
+                FROM clientes c
+                JOIN personas p ON c.id = p.id
+                ORDER BY p.nombre
+            """)
+            rows = cur.fetchall()
+        finally:
+            conn.close()
+
+        self.lista.clear()
+        for rid, nombre in rows:
+            self.lista.addItem(f"{rid} - {nombre}")
+
+
+            
     def agregar_cliente(self):
-        nombre = self.input_nombre.text().strip()
-        if nombre:
-            self.lista_clientes.addItem(nombre)
-            self.input_nombre.clear()
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ventana = ClientesWindow()
-    ventana.show()
-    sys.exit(app.exec())
+        pass

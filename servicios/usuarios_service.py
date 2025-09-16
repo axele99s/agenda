@@ -61,5 +61,7 @@ def obtener_usuario(usuario_id: int):
     conn.close()
 
     if row:
-        return dict(row)  # lo convierte en diccionario {columna: valor}
+        return row  
     return None
+
+
